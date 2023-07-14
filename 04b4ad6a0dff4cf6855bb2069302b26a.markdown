@@ -1,0 +1,975 @@
+---
+jupyter:
+  kernelspec:
+    display_name: Python 3 (ipykernel)
+    language: python
+    name: python3
+  language_info:
+    codemirror_mode:
+      name: ipython
+      version: 3
+    file_extension: .py
+    mimetype: text/x-python
+    name: python
+    nbconvert_exporter: python
+    pygments_lexer: ipython3
+    version: 3.9.12
+  nbformat: 4
+  nbformat_minor: 5
+---
+
+::: {#3c8a9eda .cell .markdown}
+# Analysis of US Stock Market
+:::
+
+::: {#129931b3 .cell .markdown}
+-   Raj Mahajan
+:::
+
+::: {#2708ec27 .cell .markdown}
+## 1. Topic: 2023 Spring. US Stocks Analysis {#1-topic-2023-spring-us-stocks-analysis}
+
+-   Interest in Investing and Stocks
+-   Learn about the different tools that can be used for stock analysis
+-   Learn about the effectivness of investment strategies
+:::
+
+::: {#b47ff88a .cell .markdown}
+## 2. Hypothesis {#2-hypothesis}
+
+Through this project I would like to explore the topic of US Stocks and
+analyse the investment strategies, used by investment groups to maximize
+their profits, to understand their effectivness.
+
+#### - H1. Higher returns come with higher levels of risk also known as Risk-Return Tradeoff {#--h1-higher-returns-come-with-higher-levels-of-risk-also-known-as-risk-return-tradeoff}
+
+Test this hypothesis by analyzing the relationship between historical
+returns and volatility for different asset classes, such as stocks,
+bonds, or real estate.
+
+#### - H2. Index Funds outperfoms Hedge Funds {#--h2-index-funds-outperfoms-hedge-funds}
+
+Index funds are better choices for new investors than
+single-picked-stocks. Analyse the performance of hedge funds over a
+period of decades and compare it to different index funds such as the
+S&P 500.
+
+#### - H3. Technical Analysis can predict stock movement {#--h3-technical-analysis-can-predict-stock-movement}
+
+Examine if technical analysis can be used to predict future stock prices
+based on patterns in historical price and volume data. Analyze
+historical stock prices and test the predictive power of various
+technical indicators, such as moving averages or relative strength.
+:::
+
+::: {#ef14ed2f .cell .markdown}
+## 3. Data Acquisition {#3-data-acquisition}
+:::
+
+::: {#b168c1b1 .cell .code execution_count="3"}
+``` python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+```
+:::
+
+::: {#8ed91814 .cell .markdown}
+### 3.1 Volatility of a stocks {#31-volatility-of-a-stocks}
+:::
+
+::: {#775e96bf .cell .code execution_count="3"}
+``` python
+# the voliatility of TSLA stocks
+df_TSLAVol = pd.read_excel("./TSLA_Vol.xlsx")
+df_TSLAVol.head()
+```
+
+::: {.output .execute_result execution_count="3"}
+```{=html}
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Date</th>
+      <th>Volatility</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2013-05-19</td>
+      <td>1.0815</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2013-06-30</td>
+      <td>0.5076</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2013-07-28</td>
+      <td>0.7273</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2013-08-25</td>
+      <td>0.6391</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2013-09-29</td>
+      <td>0.4729</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+```
+:::
+:::
+
+::: {#dc387ae0 .cell .markdown}
+### 3.2 Historical Returns of the previous Stocks {#32-historical-returns-of-the-previous-stocks}
+:::
+
+::: {#0a3d4f8e .cell .code execution_count="30" scrolled="true"}
+``` python
+# returns of TSLA STOCKS over 10 years (2013 - 2020)
+df_TSLA = pd.read_excel("./TSLA.xlsx")
+df_TSLA.info()
+```
+
+::: {.output .stream .stdout}
+    <class 'pandas.core.frame.DataFrame'>
+    RangeIndex: 1702 entries, 0 to 1701
+    Data columns (total 7 columns):
+     #   Column     Non-Null Count  Dtype         
+    ---  ------     --------------  -----         
+     0   Date       1702 non-null   datetime64[ns]
+     1   Open       1702 non-null   float64       
+     2   High       1702 non-null   float64       
+     3   Low        1702 non-null   float64       
+     4   Close      1702 non-null   float64       
+     5   Adj Close  1702 non-null   float64       
+     6   Volume     1702 non-null   int64         
+    dtypes: datetime64[ns](1), float64(5), int64(1)
+    memory usage: 93.2 KB
+:::
+:::
+
+::: {#1d571f35 .cell .code execution_count="5"}
+``` python
+df_TSLA.head()
+```
+
+::: {.output .execute_result execution_count="5"}
+```{=html}
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Date</th>
+      <th>Open</th>
+      <th>High</th>
+      <th>Low</th>
+      <th>Close</th>
+      <th>Adj Close</th>
+      <th>Volume</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2010-08-02</td>
+      <td>20.500000</td>
+      <td>20.969999</td>
+      <td>20.330000</td>
+      <td>20.920000</td>
+      <td>20.920000</td>
+      <td>718100</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2010-08-03</td>
+      <td>21.000000</td>
+      <td>21.950001</td>
+      <td>20.820000</td>
+      <td>21.950001</td>
+      <td>21.950001</td>
+      <td>1230500</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2010-08-04</td>
+      <td>21.950001</td>
+      <td>22.180000</td>
+      <td>20.850000</td>
+      <td>21.260000</td>
+      <td>21.260000</td>
+      <td>913000</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2010-08-05</td>
+      <td>21.540001</td>
+      <td>21.549999</td>
+      <td>20.049999</td>
+      <td>20.450001</td>
+      <td>20.450001</td>
+      <td>796200</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2010-08-06</td>
+      <td>20.100000</td>
+      <td>20.160000</td>
+      <td>19.520000</td>
+      <td>19.590000</td>
+      <td>19.590000</td>
+      <td>741900</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+```
+:::
+:::
+
+::: {#6cb6ccb3 .cell .markdown}
+### 3.3 Returns of Hedge funds over a period of 10 years {#33-returns-of-hedge-funds-over-a-period-of-10-years}
+:::
+
+::: {#72d03545 .cell .code execution_count="19"}
+``` python
+# Returns of a Hedge Fund
+df_HED = pd.read_excel("./HEDGE.xlsx")
+df_HED.head()
+```
+
+::: {.output .execute_result execution_count="19"}
+```{=html}
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Date</th>
+      <th>FundA</th>
+      <th>FundB</th>
+      <th>FundC</th>
+      <th>FundD</th>
+      <th>FundE</th>
+      <th>Index</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2008-12-31</td>
+      <td>-0.165</td>
+      <td>-0.223</td>
+      <td>-0.213</td>
+      <td>-0.290</td>
+      <td>-0.301</td>
+      <td>-0.370</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2009-12-31</td>
+      <td>0.113</td>
+      <td>0.145</td>
+      <td>0.214</td>
+      <td>0.165</td>
+      <td>0.168</td>
+      <td>0.266</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2010-12-31</td>
+      <td>0.059</td>
+      <td>0.068</td>
+      <td>0.133</td>
+      <td>0.049</td>
+      <td>0.119</td>
+      <td>0.151</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2011-12-31</td>
+      <td>-0.063</td>
+      <td>-0.013</td>
+      <td>0.059</td>
+      <td>-0.063</td>
+      <td>-0.028</td>
+      <td>0.021</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2012-12-31</td>
+      <td>0.034</td>
+      <td>0.096</td>
+      <td>0.057</td>
+      <td>0.062</td>
+      <td>0.091</td>
+      <td>0.160</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+```
+:::
+:::
+
+::: {#8b4c6925 .cell .markdown}
+### 3.4 Return of S&P 500 (Index Fund) {#34-return-of-sp-500-index-fund}
+:::
+
+::: {#d8d5e9c8 .cell .code execution_count="57"}
+``` python
+# returns of S&P 500 from 1927 to 2020
+df_SPX = pd.read_excel("./SPX.xlsx")
+df_SPX.describe()
+```
+
+::: {.output .execute_result execution_count="57"}
+```{=html}
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Open</th>
+      <th>High</th>
+      <th>Low</th>
+      <th>Close</th>
+      <th>Adj Close</th>
+      <th>Volume</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>count</th>
+      <td>7773.000000</td>
+      <td>7773.000000</td>
+      <td>7773.000000</td>
+      <td>7773.000000</td>
+      <td>7773.000000</td>
+      <td>7.773000e+03</td>
+    </tr>
+    <tr>
+      <th>mean</th>
+      <td>1318.076835</td>
+      <td>1325.810354</td>
+      <td>1309.749265</td>
+      <td>1318.330855</td>
+      <td>1318.330855</td>
+      <td>2.262931e+09</td>
+    </tr>
+    <tr>
+      <th>std</th>
+      <td>731.998137</td>
+      <td>735.298248</td>
+      <td>728.274727</td>
+      <td>731.994465</td>
+      <td>731.994465</td>
+      <td>1.806898e+09</td>
+    </tr>
+    <tr>
+      <th>min</th>
+      <td>295.450012</td>
+      <td>301.450012</td>
+      <td>294.510010</td>
+      <td>295.459991</td>
+      <td>295.459991</td>
+      <td>1.499000e+07</td>
+    </tr>
+    <tr>
+      <th>25%</th>
+      <td>834.599976</td>
+      <td>844.229980</td>
+      <td>823.530029</td>
+      <td>834.890015</td>
+      <td>834.890015</td>
+      <td>5.378200e+08</td>
+    </tr>
+    <tr>
+      <th>50%</th>
+      <td>1207.010010</td>
+      <td>1214.280029</td>
+      <td>1199.439941</td>
+      <td>1207.170044</td>
+      <td>1207.170044</td>
+      <td>1.812900e+09</td>
+    </tr>
+    <tr>
+      <th>75%</th>
+      <td>1545.800049</td>
+      <td>1552.760010</td>
+      <td>1538.109985</td>
+      <td>1546.630005</td>
+      <td>1546.630005</td>
+      <td>3.618360e+09</td>
+    </tr>
+    <tr>
+      <th>max</th>
+      <td>3564.739990</td>
+      <td>3588.110107</td>
+      <td>3535.229980</td>
+      <td>3580.840088</td>
+      <td>3580.840088</td>
+      <td>1.145623e+10</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+```
+:::
+:::
+
+::: {#31d87b56 .cell .markdown}
+### 3.5 AAPL Stock over the last 10 years {#35-aapl-stock-over-the-last-10-years}
+:::
+
+::: {#e2eb48ea .cell .code execution_count="51" scrolled="true"}
+``` python
+df_AAPL = pd.read_excel("./AAPL.xlsx")
+df_AAPL.tail()
+```
+
+::: {.output .execute_result execution_count="51"}
+```{=html}
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Date</th>
+      <th>Price</th>
+      <th>Open</th>
+      <th>High</th>
+      <th>Low</th>
+      <th>Vol.</th>
+      <th>Change %</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1564</th>
+      <td>2016-01-08</td>
+      <td>24.24</td>
+      <td>24.64</td>
+      <td>24.78</td>
+      <td>24.19</td>
+      <td>283.19M</td>
+      <td>0.0054</td>
+    </tr>
+    <tr>
+      <th>1565</th>
+      <td>2016-01-07</td>
+      <td>24.11</td>
+      <td>24.67</td>
+      <td>25.03</td>
+      <td>24.11</td>
+      <td>324.38M</td>
+      <td>-0.0425</td>
+    </tr>
+    <tr>
+      <th>1566</th>
+      <td>2016-01-06</td>
+      <td>25.18</td>
+      <td>25.14</td>
+      <td>25.59</td>
+      <td>24.97</td>
+      <td>273.83M</td>
+      <td>-0.0195</td>
+    </tr>
+    <tr>
+      <th>1567</th>
+      <td>2016-01-05</td>
+      <td>25.68</td>
+      <td>26.44</td>
+      <td>26.46</td>
+      <td>25.60</td>
+      <td>223.16M</td>
+      <td>-0.0251</td>
+    </tr>
+    <tr>
+      <th>1568</th>
+      <td>2016-01-04</td>
+      <td>26.34</td>
+      <td>25.65</td>
+      <td>26.34</td>
+      <td>25.50</td>
+      <td>270.60M</td>
+      <td>0.0008</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+```
+:::
+:::
+
+::: {#ab8f36fe .cell .markdown}
+## 4. Analysis {#4-analysis}
+:::
+
+::: {#a37bf836 .cell .markdown}
+#### H1. Higher returns come with higher levels of risk {#h1-higher-returns-come-with-higher-levels-of-risk}
+:::
+
+::: {#f9375324 .cell .code execution_count="31"}
+``` python
+df_TSLA = pd.DataFrame({
+    'Date': df_TSLA.Date,
+    'Open': df_TSLA.Open,
+})
+f = plt.figure()
+f.set_figwidth(10)
+f.set_figheight(5)
+df_TSLA.head()
+```
+
+::: {.output .execute_result execution_count="31"}
+```{=html}
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Date</th>
+      <th>Open</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2013-05-01</td>
+      <td>55.990002</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2013-05-02</td>
+      <td>53.849998</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2013-05-03</td>
+      <td>56.470001</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2013-05-06</td>
+      <td>56.389999</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2013-05-07</td>
+      <td>62.000000</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+```
+:::
+
+::: {.output .display_data}
+    <Figure size 720x360 with 0 Axes>
+:::
+:::
+
+::: {#afbb7229 .cell .code execution_count="68" scrolled="true"}
+``` python
+f = plt.figure()
+f.set_figwidth(13)
+f.set_figheight(5)
+
+plt.plot(df_TSLA['Date'], df_TSLA['Open'])
+plt.title('Price of TESLA Stock from 2011 - 2020')
+plt.ylabel('Stock Price in USD $')
+plt.xlabel('Year')
+```
+
+::: {.output .execute_result execution_count="68"}
+    Text(0.5, 0, 'Year')
+:::
+
+::: {.output .display_data}
+![](images/fc620067d1233294e73ae92d10f20890664c1e0f.png)
+:::
+:::
+
+::: {#a7095c33 .cell .code execution_count="4"}
+``` python
+df_Vol = pd.DataFrame({
+    'Date': df_TSLAVol.Date,
+    'Volatility': df_TSLAVol.Volatility
+})
+```
+:::
+
+::: {#ca07ebc5 .cell .code execution_count="5"}
+``` python
+f = plt.figure()
+f.set_figwidth(10)
+f.set_figheight(5)
+
+plt.plot(df_Vol['Date'], df_Vol['Volatility'], 'rx-')
+plt.title('Volatility of TESLA Stock from 2013 - 2020')
+plt.ylabel('Volatility Index')
+plt.xlabel('Year')
+```
+
+::: {.output .execute_result execution_count="5"}
+    Text(0.5, 0, 'Year')
+:::
+
+::: {.output .display_data}
+![](images/fa7507068b0475884686e23ad69c5b2e5fabba4a.png)
+:::
+:::
+
+::: {#2964dc93 .cell .markdown}
+The above two graphs show the returns and the volatility of the TSLA
+Stock.
+
+Definition: Volatility is how much and how quickly prices move over a
+given span of time. A higher volatility means that a security\'s value
+can potentially be spread out over a larger range of values. This means
+that the price of the security can change dramatically over a short time
+period in either direction.
+
+To prove that high risk high reward is true we need to see a correlation
+between the volatility and the returns of the stock. If high volatility
+then the stock should either plummet or skyrocket.
+
+In this case for the TSLA Stock it can be seen that this holds true. In
+the Volatility Chart it can be seen that the Volatility index rises at
+the end of 2013, at the same time in the TSLA returns chart begins to
+rise in a rather fast manner. This same situation is duplicated 2020,
+the volatility skyrocketed and so did the returns which increased to 700
+USD to the previous 200 USD.
+
+However, a high volatility index does not always imply a high return,
+this can be seen in 2016 when the volatility index reached almost 0.7,
+however the prices did not increase rather decrease from the previously
+over 200 USD to less than 100 USD.
+
+In conclusion, we can say that high risk does corrolate to high reward
+as seen in 2013 and 2020 when the returns increased by 100%, however
+high risk also means high loss as seen in 2018 when the returns lost 50%
+of their value.
+
+All in all HIGH RISK, HIGH REWARD HOLDS TRUE.
+:::
+
+::: {#20009fbd .cell .markdown}
+#### H2. Index Funds outperform Hedge Funds {#h2-index-funds-outperform-hedge-funds}
+:::
+
+::: {#7fb6c547 .cell .code execution_count="58" scrolled="false"}
+``` python
+f = plt.figure()
+f.set_figwidth(15)
+f.set_figheight(7)
+
+plt.plot(df_SPX['Date'], df_SPX['Close'])
+plt.title('Price of SPX Index Fund from 1990 - 2020')
+plt.ylabel('Stock Price in USD $')
+plt.xlabel('Year')
+```
+
+::: {.output .execute_result execution_count="58"}
+    Text(0.5, 0, 'Year')
+:::
+
+::: {.output .display_data}
+![](images/c376786f828de9a0fb8cdbc407ca737003001661.png)
+:::
+:::
+
+::: {#7aef50cb .cell .code execution_count="27" scrolled="true"}
+``` python
+# Returns of an Hedge Fund
+df_HED = pd.DataFrame({
+    'Date': df_HED.Date,
+    'FundA': df_HED.FundA,
+    'FundB': df_HED.FundB,
+    'FundC': df_HED.FundC,
+    'FundD': df_HED.FundD,
+    'FundE': df_HED.FundE,
+    'Index': df_HED.Index
+})
+
+f = plt.figure()
+f.set_figwidth(15)
+f.set_figheight(7)
+
+plt.plot(df_HED.Date, df_HED.FundB, label = "Fund B")
+plt.plot(df_HED.Date, df_HED.FundC, label = "Fund C")
+plt.plot(df_HED.Date, df_HED.Index, label = "Index Fund")
+
+plt.title('Returns of Index Fund and 2 Hedge Funds from 2009 - 2013')
+plt.ylabel('Returns in percentage')
+plt.xlabel('Year')
+```
+
+::: {.output .execute_result execution_count="27"}
+    Text(0.5, 0, 'Year')
+:::
+
+::: {.output .display_data}
+![](images/9234c237f6325aa3ad05f0dc04b2123badba6480.png)
+:::
+:::
+
+::: {#d97a563c .cell .markdown}
+To test Index Funds V. Hedge Funds, I picked 5 Hedge Funds and 1 Index
+Fund and checked their yearly returns in terms of percentage. Once that
+was done, the top 2 best Hedge Funds were pitted against the Index Fund
+(Green Line). As it can be seen the Index Fund almost always out
+performs all the other hedge funds by a large margin.
+:::
+
+::: {#62265263 .cell .markdown}
+#### H3. Technical Analysis can predict stock movement {#h3-technical-analysis-can-predict-stock-movement}
+:::
+
+::: {#eea06341 .cell .code execution_count="52" scrolled="true"}
+``` python
+df_AAPL = pd.DataFrame({
+    'Date': df_AAPL.Date,
+    'Open': df_AAPL.Open
+})
+
+df_AAPL = df_AAPL.set_index('Date')
+df_AAPL['20d'] = df_AAPL['Open'].rolling(20).mean()
+df_AAPL['250d'] = df_AAPL['Open'].rolling(250).mean()
+
+df_AAPL[['Open','20d','250d']].plot(figsize=(13,6))
+plt.title('AAPL Moving Averages')
+plt.ylabel('Price')
+```
+
+::: {.output .execute_result execution_count="52"}
+    Text(0, 0.5, 'Price')
+:::
+
+::: {.output .display_data}
+![](images/0cbe29f0e061ee2943d029e07f4e20c49b0fa56b.png)
+:::
+:::
+
+::: {#f5b81c81 .cell .markdown}
+To test if techincal analysis is a useful tool to predict the movement
+of stocks, the AAPL stock, and the moving average analysis method was
+used. This method uses the data of a previously set days. In the example
+of the AAPL stock 20 days and 250 days were selected. For example, if
+the stock price of May 21 2023 needed to be predicted, using the moving
+average method with 20 days data, this method will use the data from May
+1 2023.
+
+After the price for each day is predicted, if is then graphed. In this
+graph above it can be seen that the 20d moving average is rather precise
+and can even predict smaller price changes. On the other hand, the 250d
+moving average can only provide us with a general idea of the direction
+of the market and not the short term results.
+:::
+
+::: {#fcd0740a .cell .code execution_count="28" scrolled="true"}
+``` python
+df_TSLA = df_TSLA.set_index('Date')
+df_TSLA['20d'] = df_TSLA['Open'].rolling(20).mean()
+df_TSLA['250d'] = df_TSLA['Open'].rolling(250).mean()
+
+df_TSLA[['Open', '20d','250d']].plot(figsize=(13,6))
+plt.title('TSLA Moving Averages')
+plt.ylabel('Price')
+```
+
+::: {.output .execute_result execution_count="28"}
+    Text(0, 0.5, 'Price')
+:::
+
+::: {.output .display_data}
+![](images/f8a99abc443d130e8571a20b0cc4a13800a2ab03.png)
+:::
+:::
+
+::: {#a55576b7 .cell .code execution_count="32"}
+``` python
+df_TSLA = df_TSLA.set_index('Date')
+df_TSLA['5d'] = df_TSLA['Open'].rolling(5).mean()
+df_TSLA['20d'] = df_TSLA['Open'].rolling(20).mean()
+
+df_TSLA[['Open','5d']].plot(figsize=(13,6))
+plt.title('TSLA Moving Averages')
+plt.ylabel('Price')
+```
+
+::: {.output .execute_result execution_count="32"}
+    Text(0, 0.5, 'Price')
+:::
+
+::: {.output .display_data}
+![](images/bfd63795b38c3ffa2048eba7901b7ce89c7c4b53.png)
+:::
+:::
+
+::: {#b7fc277b .cell .markdown}
+The same calculations were conducted on the TSLA Stock to check if the
+returns of the APPL Stock hold true to the other stocks as well.
+Similarly, the 20d moving average is much more accurate than the 250d
+moving average.
+
+On the other hand, while 20d moving average is accurate it cannot be
+used for all purposes, one of these purposes being day trading. \"Day
+trading is the buying and selling of securities on the same day, often
+online, on the basis of small, short-term price fluctuations\" (Oxford
+Dictionary). The reason it cannot be used is because even the 20d only
+gives the general movement of stock which is much more precise than the
+250d one.
+
+The same remark can be made for the 5d moving average which is much more
+precise than the 20d moving average but still not precise enough for day
+trading.
+
+To conclude that methods of techincal analysis can be used to predict
+the future of stocks as proven by moving average method using the
+returns of the previous 5 days as data. In this particular method the
+less days you use to predict the behaviour of the stock the more
+accurate they will be.
+:::
+
+::: {#4501dd2e .cell .markdown}
+## 5. Conclusion {#5-conclusion}
+:::
+
+::: {#54fe2f5e .cell .markdown}
+In conclusion, as explained in the ANALYSIS Section, the three
+hypothesis were proven true.
+
+Hypothesis I discussed that HIGH RISK MEANS HIGH REWARD. To prove this
+the returns of the TSLA stock were compared to its volatility. This
+showed that if the volatility is high then either the stock price
+skyrockets or plummets. This can be confirmed with the data provided by
+the TSLA Stock which showed that when the volatility index is high such
+as in 2013 and 2020, the returns increased by 100%, however it can also
+mean a loss such as in 2018 when the returns lost 50% of their value.
+This means that if there is high risk then there can be high reward,
+proving Hypothesis I true.
+
+Hypothesis II asked which is superior Index Funds or Hedge Funds (where
+each stock is handpicked). To prove this the returns of 5 hedge funds
+and 1 Index Fund over 8 years was taken and compared. The returns show
+that the Index Fund almost always outperformed the Hedge funds by a
+large margin. After the 8 years Final Gain of the index fund was 125%
+which means investors more than doubled their money. On the other hand,
+the highest gain for the hedge funds was only 88% by Hedge Fund C. This
+proves that Index funds are better than Hedge Funds. The top 500
+companies are better than the handpicked companies by experts.
+
+Hypothesis III questionned if it is possible to use technical analysis
+to predict the stock prices. To check this the moving average analysis
+method was used. This method showed that it is indeed possible to
+predict the behaviour of the stocks rather accurately. Tools of
+technical analysis such as moving average analysis can be used to
+accurately understand the behaviour of stocks on the other hand they
+cannot be used in any situation, such as in day trading. Moving average
+is not an accurate enough method of this practice and investors should
+refrain from using this when practicing day trading.
+:::
+
+::: {#d1de05d0 .cell .markdown}
+## 6. References {#6-references}
+:::
+
+::: {#6c82aa1b .cell .markdown}
+-   <https://www.alphaquery.com/stock/TSLA/volatility-option-statistics/150-day/historical-volatility>
+-   <https://www.kaggle.com/datasets/henryhan117/sp-500-historical-data>
+-   <https://www.kaggle.com/datasets/tarunpaparaju/apple-aapl-historical-stock-data>
+-   <https://www.kaggle.com/datasets/timoboz/tesla-stock-data-from-2010-to-2020>
+-   <https://hedgefollow.com/top-hedge-funds.php>
+-   <https://www.investopedia.com/terms/m/movingaverage.asp>
+-   <https://www.aei.org/carpe-diem/the-sp-500-index-out-performed-hedge-funds-over-the-last-10-years-and-it-wasnt-even-close/>
+:::
